@@ -48,7 +48,6 @@ class SassPlugin {
   }
 
   apply(compiler) {
-    let self = this;
     let options = Object.assign(this.options, { file: path.join(compiler.context, this.file) });
     let rootDir = path.dirname(options.file);
     let audit = new Audit(path.join(compiler.context, 'node_modules'));
