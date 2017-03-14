@@ -43,26 +43,27 @@ class SassPlugin {
     if(typeof custom === 'object') {
       options = Object.assign(options, custom);
     }
-
-    this.options = Object.assign({ file }, options);
+    this.file = file;
+    this.options = options;
   }
 
   apply(compiler) {
-    var self = this;
-    var rootDir = path.dirname(path.join(compiler.context, this.options.file));
-    var audit = new Audit(path.join(compiler.context, 'node_modules'));
+    let self = this;
+    let options = Object.assign(this.options, { file: path.join(compiler.context, this.file) });
+    let rootDir = path.dirname(options.file);
+    let audit = new Audit(path.join(compiler.context, 'node_modules'));
 
     compiler.plugin('emit', function(compilation, cb) {
       audit.calculateHash(compilation.fileTimestamps);
 
       if(audit.hash == null) return cb();
 
-      sass.render(self.options, function(err, result) {
+      sass.render(options, function(err, result) {
         if(err) {
           compilation.errors.push(toError(err));
         } else {
           audit.track(result.stats);
-          compilation.assets[toFilename(self.options.file)] = toAsset(result.css);
+          compilation.assets[toFilename(options.file)] = toAsset(result.css);
         }
         cb();
       });
