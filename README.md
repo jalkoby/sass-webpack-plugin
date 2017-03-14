@@ -53,7 +53,8 @@ In the **production** mode the defaults is next:
 }
 ```
 
-If you're working with a css library like Bootstrap 3+ feel free to add it in the working space:
+## Bootstrap support
+If you're working with a css library like Bootstrap 3+ feel free to add it to your config:
 ```js
 // webpack.config.js
 module.exports = {
