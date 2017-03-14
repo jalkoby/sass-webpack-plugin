@@ -9,7 +9,7 @@ const SassPlugin = require('sass-webpack-plugin');
 module.exports = {
   ...
   plugins: [
-    new SassPlugin('%relative-path-to-your-stylesheet%', process.env.NODE_ENV),
+    new SassPlugin('./relative/path/to/your/stylesheet', process.env.NODE_ENV),
     ...
   ]
 };
@@ -31,7 +31,7 @@ If you're using **npm**:
 ```js
 new SassPlugin("./path/to/file", mode = (undefined <> "development" | "production"), node-sass-config = {})
 ```
-*node-sass-config* is the direct options to ** [node-sass](https://github.com/sass/node-sass#options)**
+*node-sass-config* is the direct options to **[node-sass](https://github.com/sass/node-sass#options)**
 
 
 In the **development** mode you will get these defaults:
