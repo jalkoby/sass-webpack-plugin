@@ -1,5 +1,10 @@
 # SASS-webpack-plugin
 
+[![build status](https://travis-ci.org/jalkoby/sass-webpack-plugin.svg?branch=master&style=flat)](https://travis-ci.org/jalkoby/sass-webpack-plugin)
+[![npm version](https://badge.fury.io/js/sass-webpack-plugin.svg)](https://badge.fury.io/js/sass-webpack-plugin)
+[![dependency Status](https://david-dm.org/jalkoby/sass-webpack-plugin.svg?theme=shields.io)](https://david-dm.org/jalkoby/sass-webpack-plugin)
+[![dev-dependency Status](https://david-dm.org/jalkoby/sass-webpack-plugin/dev-status.svg?theme=shields.io)](https://david-dm.org/jalkoby/sass-webpack-plugin#info=devDependencies)
+
 Let's make webpack easy. If you need a **scss/sass** support just do next:
 
 ```js
