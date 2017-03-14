@@ -1,5 +1,5 @@
 {
-  "name": "css-webpack-plugin",
+  "name": "sass-webpack-plugin",
   "version": "0.1.0",
   "description": "Get your shyleshit together",
   "main": "index.js",
