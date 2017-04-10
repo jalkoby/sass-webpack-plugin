@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-node_modules/mocha/bin/mocha --compilers js:babel-core/register "$@"
+node_modules/mocha/bin/mocha --compilers js:babel-register "$@"
