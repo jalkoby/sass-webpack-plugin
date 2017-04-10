@@ -1,9 +1,8 @@
 # SASS-webpack-plugin
 
-[![build status](https://travis-ci.org/jalkoby/sass-webpack-plugin.svg?branch=master&style=flat)](https://travis-ci.org/jalkoby/sass-webpack-plugin)
+[![Build Status](https://travis-ci.org/jalkoby/sass-webpack-plugin.svg?branch=master)](https://travis-ci.org/jalkoby/sass-webpack-plugin)
 [![npm version](https://badge.fury.io/js/sass-webpack-plugin.svg)](https://badge.fury.io/js/sass-webpack-plugin)
-[![dependency Status](https://david-dm.org/jalkoby/sass-webpack-plugin.svg?theme=shields.io)](https://david-dm.org/jalkoby/sass-webpack-plugin)
-[![dev-dependency Status](https://david-dm.org/jalkoby/sass-webpack-plugin/dev-status.svg?theme=shields.io)](https://david-dm.org/jalkoby/sass-webpack-plugin#info=devDependencies)
+[![dependecies](https://david-dm.org/jalkoby/sass-webpack-plugin.svg)](https://david-dm.org/jalkoby/sass-webpack-plugin)
 
 Let's make webpack easy. If you need a **scss/sass** support just do next:
 
@@ -34,9 +33,43 @@ If you're using **npm**:
 
 ## Configuration
 ```js
-new SassPlugin("./path/to/file", mode = (undefined <> "development" | "production"), node-sass-config = {})
+// webpack.config.js
+
+// the most simple case
+{
+  entry: "src/js/index.js",
+  plugins: [
+    new SassPlugin("src/css/styles.scss")
+  ]
+}
+
+// with an extra node-sass config
+{
+  entry: "src/js/index.js",
+  plugins: [
+    new SassPlugin("src/css/styles.scss", { indentWidth: 4 })
+  ]
+}
+
+// with automatic dev/production modes
+{
+  entry: "src/js/index.js",
+  plugins: [
+    new SassPlugin("src/css/styles.scss", process.env.NODE_ENV)
+  ]
+}
+
+// with auto mode + custom config
+
+{
+  entry: "src/js/index.js",
+  plugins: [
+    new SassPlugin("src/css/styles.scss", process.env.NODE_ENV, { indentWidth: 4 })
+  ]
+}
+
 ```
-*node-sass-config* is the direct options to **[node-sass](https://github.com/sass/node-sass#options)**
+For details about node-sass options please look at the [node-sass's repo](https://github.com/sass/node-sass#options)
 
 
 In the **development** mode you will get these defaults:
@@ -84,6 +117,6 @@ After that you can easily assess Bootstrap's internals like this:
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+5. Create a new Pull Request
 
 SASS-webpack-plugin is released under the [MIT License](./LICENSE).
