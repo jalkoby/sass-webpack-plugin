@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+if [ "$TRAVIS_NODE_VERSION" = "4" ]
+then
+  node_modules/mocha/bin/mocha --compilers js:babel/register "$@"
+else
+  npm test
+fi
