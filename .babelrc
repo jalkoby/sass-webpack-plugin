@@ -1,3 +1,4 @@
+// only for test purpose. The build babel config located in bin/build
 {
   "presets": ["es2015"]
 }

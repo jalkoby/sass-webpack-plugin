@@ -17,7 +17,7 @@ const
     plugins: []
   }
 
-  if(bundle.format !== 'es') compileConf.plugins.push(babel({ presets: ['es2015-rollup'] }));
+  if(bundle.format !== 'es') compileConf.plugins.push(babel({ babelrc: false, presets: ['es2015-rollup'] }));
 
   var writeConf = { dest: `dist/index${ bundle.suffix || '' }.js` };
   if(bundle.format) writeConf.format = bundle.format;
