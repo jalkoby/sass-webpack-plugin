@@ -43,12 +43,12 @@ class SassPlugin {
     if(typeof custom === 'object') {
       options = Object.assign(options, custom);
     }
-    this.file = file;
+    options.file = path.resolve(this.file);
     this.options = options;
   }
 
   apply(compiler) {
-    let options = Object.assign(this.options, { file: path.join(compiler.context, this.file) });
+    let options = this.options;
     let rootDir = path.dirname(options.file);
     let audit = new Audit(path.join(compiler.context, 'node_modules'));
 
