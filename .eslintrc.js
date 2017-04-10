@@ -7,6 +7,7 @@ module.exports = {
   'parserOptions': {
     'sourceType': 'module'
   },
+  'plugins': ['mocha'],
   'rules': {
     'brace-style': ['error', '1tbs', { allowSingleLine: true }],
     'eol-last': 'error',
@@ -18,6 +19,11 @@ module.exports = {
     'no-tabs': 'error',
     'no-trailing-spaces': 'error',
     'quotes': ['warn', 'single'],
-    'semi': ['error', 'always']
+    'semi': ['error', 'always'],
+    // test config
+    'mocha/valid-suite-description': ['warn', '^[A-Z#\.]'],
+    'mocha/max-top-level-suites': 'warn',
+    'mocha/no-mocha-arrows': 'error',
+    'mocha/handle-done-callback': 'error'
   }
 };

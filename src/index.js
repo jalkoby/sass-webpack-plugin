@@ -25,7 +25,7 @@ class SassPlugin {
   constructor(file, mode, custom) {
     var options = {};
 
-    if(mode === 'development' || (arguments.length >= 2 && mode === undefined)) {
+    if(mode === 'development' || mode === undefined) {
       options = {
         indentedSyntax: true,
         indentWidth: 2,
@@ -43,7 +43,7 @@ class SassPlugin {
     if(typeof custom === 'object') {
       options = Object.assign(options, custom);
     }
-    options.file = path.resolve(this.file);
+    options.file = path.resolve(file);
     this.options = options;
   }
 

@@ -1,4 +1,5 @@
 /dist
+/*.sublime-*
 /node_modules
 yarn.lock
 
