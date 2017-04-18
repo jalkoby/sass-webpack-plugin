@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/jalkoby/sass-webpack-plugin.svg?branch=master)](https://travis-ci.org/jalkoby/sass-webpack-plugin)
 [![npm version](https://badge.fury.io/js/sass-webpack-plugin.svg)](https://badge.fury.io/js/sass-webpack-plugin)
-[![dependecies](https://david-dm.org/jalkoby/sass-webpack-plugin.svg)](https://david-dm.org/jalkoby/sass-webpack-plugin)
+[![dependencies](https://david-dm.org/jalkoby/sass-webpack-plugin.svg)](https://david-dm.org/jalkoby/sass-webpack-plugin)
 
 Let's make webpack easy. If you need a **scss/sass** support just do next:
 
@@ -19,9 +19,28 @@ module.exports = {
 };
 ```
 
+
+## The reasons to use it
+
+It's **a production ready solution for working with css**. For a long time you had to add [a few loaders for
+development](https://github.com/webpack-contrib/sass-loader#examples) and [one more for production](https://github.com/webpack-contrib/sass-loader#in-production). With sass-webpack-plugin just add one
+plugin, specify a path to a root css and your are ready to go.
+
+Here are the reasons to use sass-webpack-plugin over "x"-loader:
+- easy to add and little to configure
+- generates a separate file(or a few if there is a need) which fits best for the production
+- completely compiles by node-sass, so styles doesn't slow down a webpack compilation
+- a native import sass rather [a patch version of it](https://github.com/webpack-contrib/sass-loader#imports)
+
+Here are reasons why sass-webpack-plugin is not the best case:
+- you build a js library/app which should has a css inside js code
+- you need a hot module reload. At the moment there is no support for hot reload, but sass-webpack-plugin will rebuild
+  css only when a root css or one of its dependencies. Webpack will start a **style rebuild only**. On my laptop it's
+  about 100ms (when webpack is not evolved it's really fast)
+
 ## Requirements
 
-**ONLY webpack 2+**. Webpack 1.x is not tested so the correct work is not guarantee.
+**ONLY webpack 2+**. The work with webpack 1.x is not tested so it's up to you.
 
 ## Install
 
@@ -29,7 +48,7 @@ module.exports = {
 
 If you're using **npm**:
 
-`npm i sass-webpack-plugin`
+`npm i --save-dev sass-webpack-plugin`
 
 ## Configuration
 ```js
