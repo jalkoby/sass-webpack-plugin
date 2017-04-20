@@ -1,7 +1,7 @@
 {
   "name": "sass-webpack-plugin",
   "version": "0.2.0",
-  "description": "Get your shyleshit together",
+  "description": "Get your shylesheet together",
   "main": "index.js",
   "module": "index.es.js",
   "scripts": {
