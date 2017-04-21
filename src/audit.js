@@ -6,24 +6,27 @@ export default class Audit {
     this.hash = null;
   }
 
-  track(stats) {
-    this.includedFiles = stats.includedFiles.filter(function(file) {
-      return !file.startsWith(this.skipDir);
-    }.bind(this));
-    this.lastStartAt = stats.start;
-  }
+  track(stats, deps) {
+    this.includedFiles.length = 0;
+    stats.includedFiles.forEach((file) => {
+      if(!file.startsWith(this.skipDir)) {
+        this.includedFiles.push(file);
 
-  getDependencies(currentDeps) {
-    return this.includedFiles.filter(function(file) {
-      return currentDeps.indexOf(file) === -1;
+        if(deps.indexOf(file) === -1) deps.push(file);
+      }
     });
+
+    this.lastStartAt = stats.start;
   }
 
   calculateHash(timestamps) {
     if(this.lastStartAt) {
       var maxTimestamp = this.includedFiles.reduce(function(acc, key) {
-        var t = timestamps[key] || Date.now();
-        return acc < t ? t : acc;
+        if(timestamps[key] && acc < timestamps[key]) {
+          return timestamps[key];
+        } else {
+          return acc;
+        }
       }, 0);
 
       if(this.lastStartAt < maxTimestamp) {

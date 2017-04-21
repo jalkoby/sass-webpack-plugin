@@ -26,6 +26,7 @@ function compile(plugin, callback) {
       modules: true,
       reasons: true
     });
+
     callback(stats, fs, compilation);
   });
 }
