@@ -4,7 +4,7 @@
 [![npm version](https://badge.fury.io/js/sass-webpack-plugin.svg)](https://badge.fury.io/js/sass-webpack-plugin)
 [![dependencies](https://david-dm.org/jalkoby/sass-webpack-plugin.svg)](https://david-dm.org/jalkoby/sass-webpack-plugin)
 
-Get your stylesheets together 😼. If you need a **scss/sass** support just ✍️:
+Get your stylesheets together 😼. If you need a **scss/sass** support just add this:
 
 ```js
 // webpack.config.js
@@ -21,7 +21,7 @@ module.exports = {
 
 ## The reasons to use it
 
-It's **a production ready solution for working with css** 🏭. For a long time you had to add [a few loaders for
+It's **a production ready solution for working with css**. For a long time you had to add [a few loaders for
 development](https://github.com/webpack-contrib/sass-loader#examples) and [one more for production](https://github.com/webpack-contrib/sass-loader#in-production) 😒. With sass-webpack-plugin just add one
 plugin, specify a path to a root css and your are ready to go 🙏.
 
