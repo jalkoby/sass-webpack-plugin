@@ -59,12 +59,8 @@ class SassPlugin {
   apply(compiler) {
     let options = this.options;
     let fileName = toFilename(options.file);
-    let audit, chunk;
-
-    compiler.plugin('watch-run', (_, cb) => {
-      audit = new Audit(path.dirname(options.file));
-      cb();
-    });
+    let audit = new Audit(path.dirname(options.file));
+    let chunk;
 
     compiler.plugin('compilation', (compilation) => {
       // skip child compilers
@@ -74,7 +70,7 @@ class SassPlugin {
       chunk.ids = [];
       if(chunk.files.indexOf(fileName) === -1) chunk.files.push(fileName);
 
-      if(audit && audit.isUpToDay(compilation.fileTimestamps)) return;
+      if(audit.isUpToDay(compilation.fileTimestamps)) return;
 
       compilation.plugin('additional-assets', (cb) => {
         log('Compiling...');
@@ -85,7 +81,7 @@ class SassPlugin {
           } else {
             log('Compiled successfully.');
             compilation.assets[fileName] = toAsset(result);
-            if(audit) audit.track(result.stats);
+            audit.track(result.stats);
           }
           cb();
         });
@@ -101,7 +97,7 @@ class SassPlugin {
     });
 
     compiler.plugin('after-emit', (compilation, cb) => {
-      if(audit) audit.handle(compilation);
+      audit.handle(compilation);
       cb();
     });
   }

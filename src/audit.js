@@ -8,7 +8,7 @@ export default class Audit {
   constructor(rootDir) {
     this.rootDir = rootDir;
     this.includedFiles = [];
-    this.lastStats = null;
+    this.result = null;
     this.lastStartAt = null;
     this.hash = null;
   }
@@ -37,17 +37,19 @@ export default class Audit {
   }
 
   track(stats) {
-    this.lastStats = {
+    this.result = {
       includedFiles: stats.includedFiles.filter(file => !EXCLUDE_PATTERN.test(file)),
       start: stats.start
     };
   }
 
   handle(compilation) {
-    this.lastStartAt = this.lastStats.start;
-    this.includedFiles = this.lastStats.includedFiles;
+    if(this.result === null) return;
+    this.lastStartAt = this.result.start;
+    this.includedFiles = this.result.includedFiles;
     addDep(compilation.contextDependencies, this.rootDir);
     this.includedFiles.forEach(file => addDep(compilation.fileDependencies, file));
     if(this.hash && this.hash !== 'init') compilation.modifyHash(this.hash);
+    this.result = null;
   }
 }
