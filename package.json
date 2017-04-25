@@ -1,9 +1,10 @@
 {
   "name": "sass-webpack-plugin",
-  "version": "0.2.1",
-  "description": "Get your shylesheet together",
+  "version": "0.3.0",
+  "description": "Get your stylesheets together",
   "main": "index.js",
   "module": "index.es.js",
+  "jsnext:main": "index.es.js",
   "scripts": {
     "release": "bin/eslint src test && bin/test && bin/build && npm publish ./dist",
     "test": "bin/eslint src test && bin/test"
