@@ -9,8 +9,7 @@ const MemoryFS = require('memory-fs');
 function fixture(rest) {
   return path.join(__dirname, 'fixtures', rest);
 }
-
-function compile(plugin, callback) {
+function build(plugin) {
   let compiler = webpack({
     entry: fixture('index.js'),
     plugins: [plugin],
@@ -19,15 +18,26 @@ function compile(plugin, callback) {
   let fs = new MemoryFS();
   compiler.outputFileSystem = fs;
   compiler.plugin('compilation', (compilation) => compilation.bail = true);
+  return compiler;
+}
+
+function compile(plugin, cb) {
+  let compiler = build(plugin);
   compiler.run((err, stats) => {
     if(err) throw err;
     let compilation = stats.compilation;
-    stats = stats.toJson({
-      modules: true,
-      reasons: true
-    });
+    stats = stats.toJson({ modules: true, reasons: true });
+    cb(stats, compiler.outputFileSystem, compilation);
+  });
+}
 
-    callback(stats, fs, compilation);
+function watch(plugin, cb) {
+  let compiler = build(plugin);
+  compiler.watch({}, (err, stats) => {
+    if(err) throw err;
+    let compilation = stats.compilation;
+    stats = stats.toJson({ modules: true, reasons: true });
+    cb(stats, compiler.outputFileSystem, compilation);
   });
 }
 
@@ -96,7 +106,20 @@ describe('SassPlugin', function() {
       compile(new SassPlugin(fixture('invalid.scss')), function(stats) {
         expect(stats.errors).to.be.lengthOf(1);
         let err = stats.errors[0];
-        expect(err).to.contain('[sass-webpack-plugin]');
+        expect(err).to.contain('sass-webpack-plugin');
+        done();
+      });
+    });
+  });
+
+  describe('#apply + watch', function() {
+    it('audits style dependecies', function(done) {
+      watch(new SassPlugin(fixture('index.scss')), function(stats, fs, compilation) {
+        expect(stats.errors).to.be.empty;
+        expect(compilation.assets).to.have.property('index.css');
+        expect(compilation.fileDependencies).to.contain(fixture('index.scss'));
+        expect(compilation.fileDependencies).to.contain(fixture('_variables.scss'));
+        expect(compilation.contextDependencies).to.contain(fixture(''));
         done();
       });
     });

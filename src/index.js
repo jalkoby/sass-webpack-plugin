@@ -2,7 +2,7 @@ import sass from 'node-sass';
 import path from 'path';
 import Audit from './audit';
 
-const MARK = '[sass-webpack-plugin]';
+const MARK = 'sass-webpack-plugin';
 
 function toFilename(originFile) {
   return path.basename(originFile).replace(/(scss|sass)$/i, 'css');
@@ -58,15 +58,23 @@ class SassPlugin {
 
   apply(compiler) {
     let options = this.options;
-    let rootDir = path.dirname(options.file);
-    let audit = new Audit(path.join(compiler.context, 'node_modules'));
+    let fileName = toFilename(options.file);
+    let audit, chunk;
+
+    compiler.plugin('watch-run', (_, cb) => {
+      audit = new Audit(path.dirname(options.file));
+      cb();
+    });
 
     compiler.plugin('compilation', (compilation) => {
       // skip child compilers
       if(compilation.compiler !== compiler) return;
 
-      audit.calculateHash(compilation.fileTimestamps);
-      if(audit.hash == null) return;
+      chunk = compilation.addChunk(MARK);
+      chunk.ids = [];
+      if(chunk.files.indexOf(fileName) === -1) chunk.files.push(fileName);
+
+      if(audit && audit.isUpToDay(compilation.fileTimestamps)) return;
 
       compilation.plugin('additional-assets', (cb) => {
         log('Compiling...');
@@ -76,18 +84,25 @@ class SassPlugin {
             compilation.errors.push(wrapError(err));
           } else {
             log('Compiled successfully.');
-            compilation.assets[toFilename(options.file)] = toAsset(result);
-            audit.track(result.stats, compilation.fileDependencies);
-
-            if(audit.hash === 'init') {
-              compilation.contextDependencies.push(rootDir);
-            } else {
-              compilation.modifyHash(audit.hash);
-            }
+            compilation.assets[fileName] = toAsset(result);
+            if(audit) audit.track(result.stats);
           }
           cb();
         });
       });
+    });
+
+    compiler.plugin('emit', (compilation, cb) => {
+      let mainModule = compilation.modules[0];
+      chunk.addModule(mainModule);
+      mainModule.addChunk(chunk);
+      compilation.chunks.push(chunk);
+      cb();
+    });
+
+    compiler.plugin('after-emit', (compilation, cb) => {
+      if(audit) audit.handle(compilation);
+      cb();
     });
   }
 }
