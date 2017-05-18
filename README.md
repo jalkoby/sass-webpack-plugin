@@ -43,7 +43,7 @@ Here are reasons why sass-webpack-plugin is not the best case:
 
 ## Install
 
-`yarn add --flat sass-webpack-plugin`
+`yarn add sass-webpack-plugin`
 
 If you're using **npm**:
 
