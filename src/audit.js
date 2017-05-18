@@ -44,12 +44,14 @@ export default class Audit {
   }
 
   handle(compilation) {
-    if(this.result === null) return;
-    this.lastStartAt = this.result.start;
-    this.includedFiles = this.result.includedFiles;
+    if(this.result !== null) {
+      this.lastStartAt = this.result.start;
+      this.includedFiles = this.result.includedFiles;
+      this.result = null;
+    }
+
     addDep(compilation.contextDependencies, this.rootDir);
     this.includedFiles.forEach(file => addDep(compilation.fileDependencies, file));
     if(this.hash && this.hash !== 'init') compilation.modifyHash(this.hash);
-    this.result = null;
   }
 }

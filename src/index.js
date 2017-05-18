@@ -24,12 +24,6 @@ function wrapError(err) {
   return new Error(`${header}\n\n${err.message}\n`);
 }
 
-function log(message) {
-  /* eslint-disable no-console */
-  console.log(`${MARK}: ${message}`);
-  /* eslint-enable no-console */
-}
-
 class SassPlugin {
   constructor(file, mode, custom) {
     var options = {};
@@ -73,13 +67,10 @@ class SassPlugin {
       if(audit.isUpToDay(compilation.fileTimestamps)) return;
 
       compilation.plugin('additional-assets', (cb) => {
-        log('Compiling...');
         sass.render(options, (err, result) => {
           if(err) {
-            log('Compilation failed.');
             compilation.errors.push(wrapError(err));
           } else {
-            log('Compiled successfully.');
             compilation.assets[fileName] = toAsset(result);
             audit.track(result.stats);
           }
