@@ -71,7 +71,7 @@ class SassPlugin {
           if(err) {
             compilation.errors.push(wrapError(err));
           } else {
-            compilation.assets[fileName] = toAsset(result);
+            compilation.assets[options.outFile || fileName] = toAsset(result);
             audit.track(result.stats);
           }
           cb();
