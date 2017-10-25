@@ -1,5 +1,6 @@
 /dist
-/*.sublime-*
 /node_modules
-yarn.lock
+/demo/dist
+/yarn.lock
+/package-lock.json
 

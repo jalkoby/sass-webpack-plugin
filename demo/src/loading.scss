@@ -1,0 +1,32 @@
+@keyframes pulse {
+  50% {
+    background: $loading-color;
+  }
+}
+
+#loading {
+  position: relative;
+  width: ($loading-height / 4);
+  height: $loading-height;
+  background: $loading-blur;
+  animation: pulse $pulse-duration infinite;
+  animation-delay: ($pulse-duration / 3);
+  &:before, &:after {
+    content: '';
+    position: absolute;
+    display: block;
+    height: ($loading-height / 1.5);
+    width: ($loading-height / 4);
+    background: $loading-blur;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: pulse $pulse-duration infinite;
+  }
+  &:before {
+    left: -($loading-height / 2);
+  }
+  &:after {
+    left: ($loading-height / 2);
+    animation-delay: ($pulse-duration / 1.5);
+  }
+}

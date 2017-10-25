@@ -7,7 +7,7 @@ const webpack = require('webpack');
 const MemoryFS = require('memory-fs');
 
 function fixture(rest) {
-  return path.join(__dirname, 'fixtures', rest);
+  return path.resolve(__dirname, '..', 'demo', 'src', rest);
 }
 function build(plugin) {
   let compiler = webpack({
@@ -44,7 +44,7 @@ function watch(plugin, cb) {
 describe('SassPlugin', function() {
   describe('#constructor', function() {
     it('handles file case', function(done) {
-      let plugin = new SassPlugin('test/fixtures/index.scss');
+      let plugin = new SassPlugin('demo/src/index.scss');
       let options = plugin.options;
       expect(options.file).to.equal(fixture('index.scss'));
       expect(options.indentedSyntax).to.be.true;
@@ -88,7 +88,7 @@ describe('SassPlugin', function() {
       compile(new SassPlugin(fixture('index.scss'), 'production'), function(stats, fs, compilation) {
         expect(stats.errors).to.be.empty;
         expect(compilation.assets).to.have.property('index.css');
-        expect(fs.readFileSync('/webpack/index.css').toString()).to.contain('.red{color:red}');
+        expect(fs.readFileSync('/webpack/index.css').toString()).to.contain('@keyframes pulse{50%{background:#659998}}');
         done();
       });
     });

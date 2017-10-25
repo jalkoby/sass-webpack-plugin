@@ -4,25 +4,22 @@ import Audit from './audit';
 
 const MARK = 'sass-webpack-plugin';
 
-function toFilename(originFile) {
-  return path.basename(originFile).replace(/(scss|sass)$/i, 'css');
-}
+const toFilename = originFile => path.basename(originFile).replace(/(scss|sass)$/i, 'css');
 
-function toAsset(result) {
-  return {
-    map: () => result.map,
-    source: () => result.css,
-    size: () => result.css.byteLength
-  };
-}
+const toAsset = result => ({
+  map: () => result.map,
+  source: () => result.css,
+  size: () => result.css.byteLength
+});
 
-function wrapError(err) {
-  var header = MARK;
+
+const wrapError = err => {
+  let header = MARK;
   if(err.file && err.line) {
     header = `${header} ${err.file}:${err.line}`;
   }
   return new Error(`${header}\n\n${err.message}\n`);
-}
+};
 
 class SassPlugin {
   constructor(file, mode, custom) {
@@ -54,15 +51,10 @@ class SassPlugin {
     let options = this.options;
     let fileName = toFilename(options.file);
     let audit = new Audit(path.dirname(options.file));
-    let chunk;
 
     compiler.plugin('compilation', (compilation) => {
       // skip child compilers
       if(compilation.compiler !== compiler) return;
-
-      chunk = compilation.addChunk(MARK);
-      chunk.ids = [];
-      if(chunk.files.indexOf(fileName) === -1) chunk.files.push(fileName);
 
       if(audit.isUpToDay(compilation.fileTimestamps)) return;
 
@@ -77,14 +69,6 @@ class SassPlugin {
           cb();
         });
       });
-    });
-
-    compiler.plugin('emit', (compilation, cb) => {
-      let mainModule = compilation.modules[0];
-      chunk.addModule(mainModule);
-      mainModule.addChunk(chunk);
-      compilation.chunks.push(chunk);
-      cb();
     });
 
     compiler.plugin('after-emit', (compilation, cb) => {
