@@ -1,3 +1,5 @@
+@import "./variables";
+
 @keyframes pulse {
   50% {
     background: $loading-color;
@@ -11,6 +13,7 @@
   background: $loading-blur;
   animation: pulse $pulse-duration infinite;
   animation-delay: ($pulse-duration / 3);
+
   &:before, &:after {
     content: '';
     position: absolute;
@@ -22,9 +25,11 @@
     transform: translateY(-50%);
     animation: pulse $pulse-duration infinite;
   }
+
   &:before {
     left: -($loading-height / 2);
   }
+
   &:after {
     left: ($loading-height / 2);
     animation-delay: ($pulse-duration / 1.5);

@@ -19,7 +19,6 @@ module.exports = {
     'no-tabs': 'error',
     'no-trailing-spaces': 'error',
     'quotes': ['warn', 'single'],
-    'semi': ['error', 'always'],
     // test config
     'mocha/valid-suite-description': ['warn', '^[A-Z#\.]'],
     'mocha/max-top-level-suites': 'warn',
