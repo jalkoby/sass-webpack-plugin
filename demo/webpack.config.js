@@ -1,6 +1,6 @@
 const path = require('path');
-const SassWebpackPlugin = require('../dist/');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const SassPlugin = require('../dist/');
+const HtmlPlugin = require('html-webpack-plugin');
 
 let watchOptions = {};
 if(process.env.USER === 'vagrant') {
@@ -11,9 +11,9 @@ if(process.env.USER === 'vagrant') {
 module.exports = {
   entry: './demo/src/index.js',
   plugins: [
-    new SassWebpackPlugin('./demo/src/page.sass', 'development', { sass: { sourceMapEmbed: false } }),
-    new SassWebpackPlugin({ './demo/src/loading.scss': 'components/loader.css' }, 'production', { sass: { includePaths: [path.resolve(__dirname, '..', 'node_modules')] } }),
-    new HtmlWebpackPlugin({
+    new SassPlugin('./demo/src/page.sass', 'development', { sass: { sourceMapEmbed: false } }),
+    new SassPlugin({ './demo/src/loading.scss': 'components/loader.css' }, 'production', { sass: { includePaths: [path.resolve(__dirname, '..', 'node_modules')] } }),
+    new HtmlPlugin({
       // Required
       inject: false,
       template: require('html-webpack-template'),

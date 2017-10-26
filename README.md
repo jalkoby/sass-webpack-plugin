@@ -4,129 +4,93 @@
 [![npm version](https://badge.fury.io/js/sass-webpack-plugin.svg)](https://badge.fury.io/js/sass-webpack-plugin)
 [![dependencies](https://david-dm.org/jalkoby/sass-webpack-plugin.svg)](https://david-dm.org/jalkoby/sass-webpack-plugin)
 
-Get your stylesheets together 😼. If you need a **scss/sass** support just add this:
+Get your stylesheets together 😼. If you need [sass](http://sass-lang.com) + [autoprefixer](https://github.com/postcss/autoprefixer) + [webpack](https://webpack.js.org/) just do next:
+
+```bash
+  npm i -D webpack webpack-dev-server sass-webpack-plugin html-webpack-plugin html-webpack-template
+  # or
+  yarn add -D webpack webpack-dev-server sass-webpack-plugin html-webpack-plugin html-webpack-template
+```
 
 ```js
-// webpack.config.js
-const SassPlugin = require('sass-webpack-plugin');
+  // webpack.config.js
+  const SassPlugin = require('sass-webpack-plugin');
+  const HtmlPlugin = require('html-webpack-plugin');
+  const contentBase = path.join(__dirname, 'build');
 
-module.exports = {
-  ...
-  plugins: [
-    new SassPlugin('./relative/path/to/your/stylesheet', process.env.NODE_ENV),
-    ...
-  ]
-};
+  module.exports = {
+    entry: './src/js/index.js',
+    plugins: [
+      new SassPlugin('./src/styles/index.scss', process.env.NODE_ENV),
+      new HtmlPlugin({
+        inject: false,
+        template: require('html-webpack-template'),
+        title: 'Sass webpack plugin',
+        links: [{ rel: 'stylesheet', type: 'text/css', href: '/index.scss' }],
+        appMountId: 'app'
+      })
+    ],
+    module: {
+      // babel, linter, etc
+    },
+    output: {
+      path: contentBase,
+      filename: 'index.js'
+    },
+    devServer: (process.env.NODE_ENV === 'production') ? false : {
+      contentBase: contentBase,
+      compress: true,
+      port: 3000
+    }
+  };
 ```
 
 ## The reasons to use it
 
-It's **a production ready solution for working with css**. For a long time you had to add [a few loaders for
-development](https://github.com/webpack-contrib/sass-loader#examples) and [one more for production](https://github.com/webpack-contrib/sass-loader#in-production) 😒. With sass-webpack-plugin just add one
-plugin, specify a path to a root css and your are ready to go 🙏.
+It's an **all-in-one solution for sass + webpack** without any limitations.
 
 Here are the reasons to use sass-webpack-plugin over "x"-loader:
 - easy to add and little to configure
-- generates a separate file(or a few if there is a need) which fits best for the production
-- completely compiles by node-sass, so styles doesn't slow down a webpack compilation
-- a native import sass rather [a patch version of it](https://github.com/webpack-contrib/sass-loader#imports)
+- generates a separate file (or a few if there is a need) which fits best for the production
+- completely compiled by node-sass, so styles doesn't slow down a webpack compilation
+- the native sass import instead of [a patch version of it](https://github.com/webpack-contrib/sass-loader#imports)
 
 Here are reasons why sass-webpack-plugin is not the best case:
 - you build a js library/app which should has a css inside js code
-- you need a hot module reload. At the moment there is no support for hot reload, but sass-webpack-plugin will rebuild
-  css only when a root css or one of its dependencies. Webpack will start a **style rebuild only**. On my laptop it's
-  about 100ms (when webpack is not evolved it's really fast)
+- you need a hot module reload for styles
 
 ## Requirements
 
-**ONLY webpack 2+**. The work with webpack 1.x is not tested so it's up to you 🤞
+**Webpack 2+**. The work with webpack 1.x is not tested so it's up to you 🤞
 
-## Install
+## Config examples
 
-`yarn add sass-webpack-plugin`
-
-If you're using **npm**:
-
-`npm i --save-dev sass-webpack-plugin`
-
-## Configuration
 ```js
-// webpack.config.js
+  // basic
+  new SassPlugin('./src/styles/index.scss');
 
-// the most simple case
-{
-  entry: "src/js/index.js",
-  plugins: [
-    new SassPlugin("src/css/styles.scss")
-  ]
-}
+  // production ready
+  new SassPlugin('./src/styles/index.scss', process.env.NODE_ENV);
 
-// with an extra node-sass config
-{
-  entry: "src/js/index.js",
-  plugins: [
-    new SassPlugin("src/css/styles.scss", { indentWidth: 4 })
-  ]
-}
+  // multi files
+  new SassPlugin(['./src/styles/one.scss', './src/styles/two.sass'], process.env.NODE_ENV);
 
-// with automatic dev/production modes
-{
-  entry: "src/js/index.js",
-  plugins: [
-    new SassPlugin("src/css/styles.scss", process.env.NODE_ENV)
-  ]
-}
+  // a different output filename
+  new SassPlugin({ './src/styles/index.scss': 'bundle.css' }, process.env.NODE_ENV);
 
-// with auto mode + custom config
-
-{
-  entry: "src/js/index.js",
-  plugins: [
-    new SassPlugin("src/css/styles.scss", process.env.NODE_ENV, { indentWidth: 4 })
-  ]
-}
-
-```
-For details about node-sass options please look at the [node-sass's repo](https://github.com/sass/node-sass#options)
-
-
-In the **development** mode you will get these defaults:
-```js
-{
-  indentedSyntax: true,
-  indentWidth: 2,
-  sourceMap: true,
-  sourceMapEmbed: true,
-  sourceComments: true,
-  sourceMapContents: true
-}
-```
-
-In the **production** mode the defaults is next:
-```js
-{
-  outputStyle: 'compressed'
-}
-```
-
-## Bootstrap support
-If you're working with a css library like Bootstrap 3+ feel free to add it to your config:
-```js
-// webpack.config.js
-module.exports = {
-  plugins: [
-    new SassPlugin('./src/css/index.scss', process.env.NODE_ENV, {
+  // with sass tuning
+  new SassPlugin('./src/styles/index.scss', process.env.NODE_ENV, {
+    sass: {
       includePaths: [path.join(__dirname, 'node_modules/bootstrap-sass/assets/stylesheets')]
-    })
-  ]
-}
-```
-After that you can easily assess Bootstrap's internals like this:
-```scss
-// ./src/css/index.scss
-@import "bootstrap/normalize";
-@import "bootstrap/print";
+    }
+  });
 
+  // with source maps + compressing - autoprefixing
+  new SassPlugin('./src/styles/index.scss', {
+    sourceMap: true,
+    sass: { outputStyle: 'compressed' },
+    autoprefixer: false
+  });
 ```
 
 ## Contributing

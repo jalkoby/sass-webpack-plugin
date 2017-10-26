@@ -36,11 +36,12 @@ const processFiles = files => {
       return acc;
     }, {});
   } else {
-    printConfigWarning('files should be string | array | object');
+    printConfigWarning('files argument should be string | array | object');
     process.exit(1);
   }
 }
 
+const KNOWN_OPTIONS = ['sourceMap', 'sass', 'autoprefixer'];
 const processConfig = (mode, config) => {
   let options = { sourceMap: true, sass: { sourceMapContents: true } };
 
@@ -56,6 +57,10 @@ const processConfig = (mode, config) => {
   }
 
   if(typeof config === 'object') {
+    let unknownKeys = Object.keys(config).filter(key => KNOWN_OPTIONS.indexOf(key) === -1);
+    if(unknownKeys.length > 0) {
+      printConfigWarning(`Only ${KNOWN_OPTIONS.join(',')} are valid options`);
+    }
     lodash.merge(options, config);
   }
 
