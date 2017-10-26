@@ -46,45 +46,44 @@ describe('SassPlugin', function() {
     it('handles file case', function(done) {
       let plugin = new SassPlugin('demo/src/index.scss');
       expect(plugin.files[fixture_abs('index.scss')]).to.equal('index.css');
-      let options = plugin.options.sass;
-      expect(options.indentedSyntax).to.be.true;
-      expect(options.indentWidth).to.eq(2);
-      expect(options.maps).to.be.true;
+      expect(plugin.options.sourceMap).to.be.true;
+      expect(plugin.options.sass.indentedSyntax).to.be.true;
+      expect(plugin.options.sass.indentWidth).to.eq(2);
       done();
     });
 
     it('handles file + options case', function(done) {
-      let plugin = new SassPlugin(fixture('index.scss'), { sass: { indentWidth: 4 } });
-      expect(plugin.files[fixture_abs('index.scss')]).to.equal('index.css');
-      let options = plugin.options.sass;
-      expect(options.indentedSyntax).to.be.undefined;
-      expect(options.indentWidth).to.eq(4);
-      expect(options.maps).to.be.true;
+      let plugin = new SassPlugin(fixture('index.sass'), { sass: { indentWidth: 4 } });
+      expect(plugin.files[fixture_abs('index.sass')]).to.equal('index.css');
+      expect(plugin.options.sourceMap).to.be.true;
+      expect(plugin.options.sass.indentedSyntax).to.be.undefined;
+      expect(plugin.options.sass.indentWidth).to.eq(4);
       done();
     });
 
     it('handles file + production mode case', function(done) {
-      let plugin = new SassPlugin('src/custom.sass', 'production');
-      let options = plugin.options.sass;
-      expect(options.outputStyle).to.equal('compressed');
+      let plugin = new SassPlugin([fixture('src/custom.sass')], 'production');
+      expect(plugin.files[fixture_abs('src/custom.sass')]).to.equal('custom.css');
+      expect(plugin.options.sass.outputStyle).to.equal('compressed');
+      expect(plugin.options.autoprefixer).to.be.true;
       done();
     });
 
     it('handles file + mode + options case', function(done) {
       let plugin = new SassPlugin('src/index.scss', process.env.NODE_ENV, { sass: { indentWidth: 4 } });
-      let options = plugin.options.sass;
-      expect(options.indentedSyntax).to.true;
-      expect(options.indentWidth).to.equal(4);
-      expect(options.maps).to.be.true;
+      expect(plugin.options.sourceMap).to.be.true;
+      expect(plugin.options.sass.indentedSyntax).to.be.true;
+      expect(plugin.options.sass.indentWidth).to.equal(4);
       done();
     });
   });
 
   describe('#apply', function() {
     it('is used in compile mode', function(done) {
-      compile(new SassPlugin(fixture('loading.scss'), 'production'), function(stats, fs, compilation) {
+      compile(new SassPlugin(fixture('loading.scss'), 'production', { sass: { includePaths: [path.resolve(__dirname, '..', 'node_modules')]} }), function(stats, fs, compilation) {
         expect(stats.errors).to.be.empty;
         expect(compilation.assets).to.have.property('loading.css');
+        expect(compilation.assets).to.have.property('loading.css.map');
         expect(fs.readFileSync('/webpack/loading.css').toString()).to.contain('@keyframes pulse{50%{background:#659998}}');
         done();
       });
@@ -94,7 +93,7 @@ describe('SassPlugin', function() {
       compile(new SassPlugin(fixture('page.sass')), function(stats, fs, compilation) {
         expect(stats.errors).to.be.empty;
         expect(compilation.assets).to.have.property('page.css');
-        expect(fs.readFileSync('/webpack/page.css').toString()).to.contain('sourceMappingURL=data:application/json;base64');
+        expect(fs.readFileSync('/webpack/page.css').toString()).to.contain('sourceMappingURL=page.css.map');
         done();
       });
     });

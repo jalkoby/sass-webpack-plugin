@@ -1,16 +1,11 @@
-import sass from 'node-sass'
 import path from 'path'
+import lodash from 'lodash'
 import Audit from './audit'
+import Processor from './processor'
 
 const MARK = 'sass-webpack-plugin';
 
 const toFilename = originFile => path.basename(originFile).replace(/(scss|sass)$/i, 'css');
-
-const toAsset = result => ({
-  map: () => result.map,
-  source: () => result.css,
-  size: () => result.css.byteLength
-});
 
 const wrapError = err => {
   let header = MARK;
@@ -26,11 +21,6 @@ const printConfigWarning = message => {
   printLine(`${message}`);
   printLine('Please check the valid options at https://www.npmjs.com/package/sass-webpack-plugin');
 }
-
-const ALLOWED_OPTIONS = {
-  sass: ['includePaths', 'indentedSyntax', 'indentWidth', 'linefeed', 'importer', 'functions', 'precision', 'maps'],
-  postcss: []
-};
 
 const processFiles = files => {
   if(typeof files === 'string') {
@@ -52,53 +42,24 @@ const processFiles = files => {
 }
 
 const processConfig = (mode, config) => {
-  let options = { sass: { maps: true }, postcss: {} };
+  let options = { sourceMap: true, sass: { sourceMapContents: true } };
 
   if(mode === 'development' || mode === undefined) {
     options.sass.indentedSyntax = true;
     options.sass.indentWidth = 2;
+    options.sass.sourceComments = true;
   } else if(mode === 'production') {
     options.sass.outputStyle = 'compressed';
+    options.autoprefixer = true;
   } else if(typeof mode === 'object') {
     config = mode;
   }
 
   if(typeof config === 'object') {
-    Object.keys(config).forEach(key => {
-      if(ALLOWED_OPTIONS.hasOwnProperty(key)) {
-        let subConfig = config[key];
-        if(typeof subConfig === 'object') {
-          Object.keys(subConfig).forEach(skey => {
-            if(ALLOWED_OPTIONS[key].indexOf(skey) !== -1) {
-              options[key][skey] = subConfig[skey];
-            } else {
-              printConfigWarning(`${key}.${skey} is not supported and will be omitted`);
-            }
-          });
-        } else {
-          printConfigWarning(`${key} is not object and will be omitted`);
-        }
-      } else {
-        printConfigWarning(`${key} is not supported and will be omitted`);
-      }
-    });
+    lodash.merge(options, config);
   }
 
   return options;
-}
-
-const toSassOptions = (file, outFile, options) => {
-  let result = Object.assign({ file }, options);
-  if(options.maps) {
-    Object.assign(result, {
-      outFile,
-      sourceMap: true,
-      sourceMapEmbed: true,
-      sourceComments: true,
-      sourceMapContents: true
-    });
-  }
-  return result;
 }
 
 class SassPlugin {
@@ -111,7 +72,7 @@ class SassPlugin {
     Object.keys(this.files).forEach(file => {
       let audit = new Audit(path.dirname(file));
       let outFile = this.files[file];
-      let sassOptions = toSassOptions(file, outFile, this.options.sass);
+      let processor = new Processor(file, outFile, this.options);
 
       compiler.plugin('compilation', (compilation) => {
         // skip child compilers
@@ -119,14 +80,16 @@ class SassPlugin {
 
         if(audit.isUpToDay(compilation.fileTimestamps)) return;
 
-        compilation.plugin('additional-assets', (cb) => {
-          sass.render(sassOptions, (err, result) => {
-            if(err) {
-              compilation.errors.push(wrapError(err));
-            } else {
-              compilation.assets[outFile] = toAsset(result);
-              audit.track(result.stats);
+        compilation.plugin('additional-assets', cb => {
+          processor.process().then(([stats, asset, sourceMaps]) => {
+            audit.track(stats);
+            compilation.assets[outFile] = asset;
+            if(sourceMaps) {
+              compilation.assets[`${outFile}.map`] = sourceMaps;
             }
+            cb();
+          }, err => {
+            compilation.errors.push(wrapError(err));
             cb();
           });
         });
