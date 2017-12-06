@@ -26,7 +26,7 @@ Get your stylesheets together 😼. If you need [sass](http://sass-lang.com) + [
         inject: false,
         template: require('html-webpack-template'),
         title: 'Sass webpack plugin',
-        links: [{ rel: 'stylesheet', type: 'text/css', href: '/index.scss' }],
+        links: [{ rel: 'stylesheet', type: 'text/css', href: '/index.css' }],
         appMountId: 'app'
       })
     ],
