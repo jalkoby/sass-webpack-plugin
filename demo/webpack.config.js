@@ -20,7 +20,8 @@ module.exports = {
       title: 'Sass webpack plugin',
       links: [
         { rel: 'stylesheet', type: 'text/css', href: '/page.css' },
-        { rel: 'stylesheet', type: 'text/css', href: '/components/loader.css' }
+        { rel: 'stylesheet', type: 'text/css', href: '/components/loader.css' },
+        { rel: 'icon', type: 'image/x-icon', href: 'http://sass-lang.com/favicon.ico' }
       ],
       appMountId: 'app'
     })
