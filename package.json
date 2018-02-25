@@ -25,6 +25,7 @@
     "type": "git",
     "url": "git@github.com:jalkoby/sass-webpack-plugin.git"
   },
+  "typings": "index.d.ts",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
