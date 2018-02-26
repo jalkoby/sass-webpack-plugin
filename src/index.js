@@ -1,109 +1,108 @@
-import path from 'path'
-import lodash from 'lodash'
-import Audit from './audit'
-import Processor from './processor'
+import path from 'path';
+import fs from 'fs';
+import lodash from 'lodash';
+import Processor from './processor';
+import {
+  processConfig,
+  processFiles,
+  addDep,
+  wrapError
+} from './utils';
 
-const MARK = 'sass-webpack-plugin';
-
-const toFilename = originFile => path.basename(originFile).replace(/(scss|sass)$/i, 'css');
-
-const wrapError = err => {
-  let header = MARK;
-  if(err.file && err.line) {
-    header = `${header} ${err.file}:${err.line}`;
-  }
-  return new Error(`${header}\n\n${err.message}\n`);
-}
-
-// eslint-disable-next-line no-console
-const printLine = message => console.log(`[${MARK}] ${message}`);
-const printConfigWarning = message => {
-  printLine(`${message}`);
-  printLine('Please check the valid options at https://www.npmjs.com/package/sass-webpack-plugin');
-}
-
-const processFiles = files => {
-  if(typeof files === 'string') {
-    return { [path.resolve(files)]: toFilename(files) };
-  } else if(Array.isArray(files)) {
-    return files.reduce((acc, file) => {
-      acc[path.resolve(file)] = toFilename(file);
-      return acc;
-    }, {});
-  } else if(typeof files === 'object') {
-    return Object.keys(files).reduce((acc, file) => {
-      acc[path.resolve(file)] = files[file];
-      return acc;
-    }, {});
-  } else {
-    printConfigWarning('files argument should be string | array | object');
-    process.exit(1);
-  }
-}
-
-const KNOWN_OPTIONS = ['sourceMap', 'sass', 'autoprefixer'];
-const processConfig = (mode, config) => {
-  let options = { sourceMap: true, sass: { sourceMapContents: true } };
-
-  if(mode === 'development' || mode === undefined) {
-    options.sass.indentedSyntax = true;
-    options.sass.indentWidth = 2;
-    options.sass.sourceComments = true;
-  } else if(mode === 'production') {
-    options.sass.outputStyle = 'compressed';
-    options.autoprefixer = true;
-  } else if(typeof mode === 'object') {
-    config = mode;
-  }
-
-  if(typeof config === 'object') {
-    let unknownKeys = Object.keys(config).filter(key => KNOWN_OPTIONS.indexOf(key) === -1);
-    if(unknownKeys.length > 0) {
-      printConfigWarning(`Only ${KNOWN_OPTIONS.join(',')} are valid options`);
-    }
-    lodash.merge(options, config);
-  }
-
-  return options;
-}
+const EXCLUDE_PATTERN = /node_modules|bower_components/;
 
 class SassPlugin {
   constructor(files, mode, config) {
     this.files = processFiles(files);
     this.options = processConfig(mode, config);
+
+    this.dependMap = {};
+
+    // file timestamps
+    // I was tried use `compilation.fileTimestamps`, but it's not work
+    this.fileTimestamps = {};
+  }
+
+  ifNeedRebuild(file) {
+    const dependencies = this.dependMap[file];
+
+    // first build
+    if (!dependencies) {
+      return true;
+    }
+
+    for (const dep of dependencies) {
+      const timestamps = fs.statSync(dep).mtimeMs;
+      const preTimestamps = this.fileTimestamps[dep];
+      if (timestamps !== preTimestamps) {
+        this.fileTimestamps[dep] = timestamps;
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  processFile(file, outFile, compilation) {
+    const processor = new Processor(file, outFile, this.options);
+    return processor
+      .process()
+      .then(([stats, asset, sourceMaps]) => {
+        const includedFiles = stats.includedFiles.filter(
+          file => !EXCLUDE_PATTERN.test(file)
+        );
+
+        compilation.assets[outFile] = asset;
+
+        if (!this.dependMap[file]) {
+          for (const dep of includedFiles) {
+            this.fileTimestamps[dep] = fs.statSync(dep).mtimeMs;
+          }
+        }
+
+        this.dependMap[file] = includedFiles;
+
+        if (sourceMaps) {
+          compilation.assets[`${outFile}.map`] = sourceMaps;
+        }
+      })
+      .catch(error => {
+        compilation.errors.push(wrapError(error));
+      });
   }
 
   apply(compiler) {
-    Object.keys(this.files).forEach(file => {
-      let audit = new Audit(path.dirname(file));
-      let outFile = this.files[file];
-      let processor = new Processor(file, outFile, this.options);
+    compiler.plugin('emit', (compilation, callback) => {
+      const processQueue = [];
 
-      compiler.plugin('compilation', (compilation) => {
-        // skip child compilers
-        if(compilation.compiler !== compiler) return;
+      for (const file of Object.keys(this.files)) {
+        if (this.ifNeedRebuild(file)) {
+          processQueue.push(
+            this.processFile(file, this.files[file], compilation)
+          );
+        }
+      }
 
-        if(audit.isUpToDay(compilation.fileTimestamps)) return;
-
-        compilation.plugin('additional-assets', cb => {
-          processor.process().then(([stats, asset, sourceMaps]) => {
-            audit.track(stats);
-            compilation.assets[outFile] = asset;
-            if(sourceMaps) {
-              compilation.assets[`${outFile}.map`] = sourceMaps;
-            }
-            cb();
-          }, err => {
-            compilation.errors.push(wrapError(err));
-            cb();
-          });
+      Promise.all(processQueue)
+        .then(() => {
+          callback();
+        })
+        .catch(() => {
+          callback();
         });
-      });
+    });
 
-      compiler.plugin('after-emit', (compilation, cb) => {
-        audit.handle(compilation);
-        cb();
-      });
+    compiler.plugin('after-emit', (compilation, callback) => {
+      const files = lodash.keys(this.dependMap);
+      const dependencies = lodash
+        .values(this.dependMap)
+        .reduce((result, deps) => result.concat(deps), [])
+        .concat(files);
+      for (const dep of dependencies) {
+        addDep(compilation.fileDependencies, path.normalize(dep));
+        addDep(compilation.contextDependencies, path.normalize(path.dirname(dep)));
+      }
+      callback();
     });
   }
 }
