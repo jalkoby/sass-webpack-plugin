@@ -5,21 +5,19 @@
   "main": "index.js",
   "module": "index.es.js",
   "jsnext:main": "index.es.js",
+  "typings": "index.d.ts",
   "scripts": {
     "build": "node scripts/build.js",
     "lint": "eslint src test",
-    "demo": "npm run build && webpack-dev-server --config ./demo/webpack.config.js",
+    "demo":
+      "npm run build && webpack-dev-server --config ./demo/webpack.config.js",
     "test": "npm run lint && mocha --compilers js:babel-register",
     "preversion": "npm test",
     "version": "npm run build",
     "postversion": "git push && git push --tags && npm publish ./dist"
   },
   "author": "Sergey Pchelintsev",
-  "keywords": [
-    "sass",
-    "webpack",
-    "plugin"
-  ],
+  "keywords": ["sass", "webpack", "plugin"],
   "license": "MIT",
   "repository": {
     "type": "git",
