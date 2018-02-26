@@ -2,12 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import lodash from 'lodash';
 import Processor from './processor';
-import {
-  processConfig,
-  processFiles,
-  addDep,
-  wrapError
-} from './utils';
+import { processConfig, processFiles, addDep, wrapError } from './utils';
 
 const EXCLUDE_PATTERN = /node_modules|bower_components/;
 
@@ -93,14 +88,15 @@ class SassPlugin {
     });
 
     compiler.plugin('after-emit', (compilation, callback) => {
-      const files = lodash.keys(this.dependMap);
       const dependencies = lodash
         .values(this.dependMap)
-        .reduce((result, deps) => result.concat(deps), [])
-        .concat(files);
+        .reduce((result, deps) => result.concat(deps));
       for (const dep of dependencies) {
         addDep(compilation.fileDependencies, path.normalize(dep));
-        addDep(compilation.contextDependencies, path.normalize(path.dirname(dep)));
+        addDep(
+          compilation.contextDependencies,
+          path.normalize(path.dirname(dep))
+        );
       }
       callback();
     });
