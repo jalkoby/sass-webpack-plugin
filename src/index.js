@@ -90,7 +90,7 @@ class SassPlugin {
     compiler.plugin('after-emit', (compilation, callback) => {
       const dependencies = lodash
         .values(this.dependMap)
-        .reduce((result, deps) => result.concat(deps));
+        .reduce((result, deps) => result.concat(deps), []);
       for (const dep of dependencies) {
         addDep(compilation.fileDependencies, path.normalize(dep));
         addDep(
