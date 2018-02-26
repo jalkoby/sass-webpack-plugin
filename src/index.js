@@ -93,10 +93,6 @@ class SassPlugin {
         .reduce((result, deps) => result.concat(deps), []);
       for (const dep of dependencies) {
         addDep(compilation.fileDependencies, path.normalize(dep));
-        addDep(
-          compilation.contextDependencies,
-          path.normalize(path.dirname(dep))
-        );
       }
       callback();
     });
