@@ -80,7 +80,7 @@ class SassPlugin {
       }
 
       Promise.all(processQueue)
-        .then(successs => {
+        .then(() => {
           callback();
         })
         .catch(() => {
