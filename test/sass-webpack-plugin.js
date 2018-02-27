@@ -115,7 +115,6 @@ describe('SassPlugin', function() {
         expect(compilation.assets).to.have.property('index.css');
         expect(compilation.fileDependencies).to.contain(fixture_abs('page.sass'));
         expect(compilation.fileDependencies).to.contain(fixture_abs('_variables.scss'));
-        expect(compilation.contextDependencies).to.contain(fixture_abs(''));
         done();
       });
     });
