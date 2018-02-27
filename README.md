@@ -57,7 +57,7 @@ Here are the reasons to use sass-webpack-plugin over "x"-loader:
 
 Here are reasons why sass-webpack-plugin is not the best case:
 - you build a js library/app which should has a css inside js code
-- you need a hot module reload for styles
+- full page reload on a style change take a too much time in your time 
 
 ## Requirements
 
