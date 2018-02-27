@@ -5,6 +5,7 @@
   "main": "index.js",
   "module": "index.es.js",
   "jsnext:main": "index.es.js",
+  "typings": "index.d.ts",
   "scripts": {
     "build": "node scripts/build.js",
     "lint": "eslint src test",
