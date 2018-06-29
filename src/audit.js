@@ -1,7 +1,11 @@
 const EXCLUDE_PATTERN = /node_modules|bower_components/;
 
 function addDep(list, item) {
-  if(list.indexOf(item) === -1) list.push(item);
+    if(typeof list.has === 'function') {
+        if(!list.has(item)) list.add(item);
+    } else {
+        if(list.indexOf(item) === -1) list.push(item);
+    }
 }
 
 export default class Audit {
