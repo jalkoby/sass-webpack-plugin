@@ -41,7 +41,7 @@ const processFiles = files => {
   }
 }
 
-const KNOWN_OPTIONS = ['sourceMap', 'sass', 'autoprefixer', 'disableAudit'];
+const KNOWN_OPTIONS = ['sourceMap', 'sass', 'autoprefixer', 'compileOnSave'];
 const processConfig = (mode, config) => {
   let options = { sourceMap: true, sass: { sourceMapContents: true } };
 
@@ -83,7 +83,7 @@ class SassPlugin {
         // skip child compilers
         if(compilation.compiler !== compiler) return;
 
-        if(audit.isUpToDay(compilation.fileTimestamps) && !this.options.disableAudit) return;
+        if(audit.isUpToDay(compilation.fileTimestamps) && !this.options.compileOnSave) return;
 
         compilation.plugin('additional-assets', cb => {
           processor.process().then(([stats, asset, sourceMaps]) => {
