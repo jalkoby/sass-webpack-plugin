@@ -43,7 +43,7 @@ const processFiles = files => {
 
 const KNOWN_OPTIONS = ['sourceMap', 'sass', 'autoprefixer', 'compileOnSave'];
 const processConfig = (mode, config) => {
-  let options = { sourceMap: true, sass: { sourceMapContents: true } };
+  let options = { sourceMap: true, sass: { sourceMapContents: true }, compileOnSave: false };
 
   if(mode === 'development' || mode === undefined) {
     options.sass.indentedSyntax = true;
