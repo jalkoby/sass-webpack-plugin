@@ -91,7 +91,8 @@ Here are reasons why sass-webpack-plugin is not the best case:
   new SassPlugin('./src/styles/index.scss', {
     sourceMap: true,
     sass: { outputStyle: 'compressed' },
-    autoprefixer: false
+    autoprefixer: false,
+    compileOnSave: true // compile on each save, even in dev server mode
   });
 ```
 
